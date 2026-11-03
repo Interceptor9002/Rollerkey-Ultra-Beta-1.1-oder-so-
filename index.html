@@ -1,0 +1,1984 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="theme-color" content="#000000">
+<title>RollerKey</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:#000;color:#4dffa0;font:16px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace}
+body{padding:16px 16px 60px;max-width:680px;margin:0 auto}
+h1{font-size:19px;letter-spacing:.2em;margin:0 0 4px;font-weight:700}
+h1 span{color:#1f8a4d;font-weight:400}
+#status{margin:6px 0 16px;font-size:14px;color:#2f9a5e;min-height:40px}
+#status.ok{color:#4dffa0}#status.warn{color:#ffcf4d}#status.err{color:#ff6b6b}
+section{border:1px solid #12492a;border-radius:14px;padding:16px;margin:0 0 16px;background:#04100a}
+section.hot{border-color:#2f9a5e;background:#06190e}
+h2{font-size:13px;letter-spacing:.18em;color:#2f9a5e;margin:0 0 14px;font-weight:700}
+.row{display:flex;justify-content:space-between;gap:12px;font-size:14px;padding:7px 0;border-bottom:1px dotted #12492a}
+.row:last-of-type{border-bottom:0}
+.row span{color:#2f9a5e}
+.row b{color:#4dffa0;font-weight:600;text-align:right;word-break:break-all}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+button{font:inherit;font-size:14px;font-weight:600;letter-spacing:.1em;padding:15px 10px;border-radius:11px;background:#06190e;color:#4dffa0;border:1px solid #12492a;cursor:pointer}
+button:active{background:#0a2a16}
+button:disabled{opacity:.3}
+button.wide{grid-column:1/-1}
+button.big{padding:24px 10px;font-size:18px;letter-spacing:.2em;border-color:#2f9a5e}
+button.danger{color:#ffa0a0;border-color:#5c1414;background:#1a0404}
+button.aktiv{background:#0a2a16;border-color:#4dffa0}
+input,textarea{width:100%;font:inherit;font-size:16px;padding:14px;border-radius:11px;background:#04100a;color:#4dffa0;border:1px solid #12492a;margin-top:10px}
+input::placeholder,textarea::placeholder{color:#1f6b3b}
+#log{font-size:13px;line-height:1.6;height:180px;overflow:auto;background:#010805;border:1px solid #12492a;border-radius:10px;padding:10px;white-space:pre-wrap;word-break:break-all}
+#log div{color:#2f9a5e}#log div.g{color:#4dffa0}#log div.y{color:#ffcf4d}#log div.e{color:#ff6b6b}#log div.h{color:#9dffca}
+.hint{font-size:13px;color:#2f9a5e;margin-top:12px;line-height:1.6}
+.hint b{color:#ffcf4d;font-weight:600}
+video{width:100%;border-radius:10px;margin-top:10px;background:#000;display:none}
+#qrbox{font-size:13px;color:#2f9a5e;margin-top:10px;word-break:break-all;min-height:16px}
+#bt{font-size:14px;margin-top:10px;color:#2f9a5e}
+#bt.on{color:#4dffa0}
+hr{border:0;border-top:1px dotted #12492a;margin:16px 0}
+.brands{display:flex;gap:8px;margin-top:12px}
+.brands button{flex:1;padding:12px 4px;font-size:13px;opacity:.45}
+.brands button.on{opacity:1;border-color:#4dffa0;background:#0a2a16}
+.card{position:relative;border-radius:18px;padding:18px;margin-top:12px;overflow:hidden;background:radial-gradient(120% 90% at 88% 6%,rgba(77,255,160,.22),transparent 58%),linear-gradient(140deg,#0a3a22 0%,#06190e 46%,#0d4a28 100%);border:1px solid #2f9a5e;box-shadow:0 8px 24px rgba(0,0,0,.7)}
+.card::after{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(115deg,transparent 0 22px,rgba(77,255,160,.05) 22px 23px)}
+.card.off{opacity:.4;filter:saturate(.4)}
+.crow{display:flex;align-items:center;justify-content:space-between}
+.chip{width:38px;height:28px;border-radius:6px;background:linear-gradient(135deg,#d8ffd0,#4d8f5f 55%,#9fe8ad)}
+.brand{font-style:italic;font-weight:700;letter-spacing:.16em;font-size:16px;color:#9dffca}
+.cnum{margin:18px 0 14px;font-size:17px;letter-spacing:.14em;color:#e2ffef;word-spacing:.3em}
+.cfoot{display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
+.clab{font-size:11px;letter-spacing:.14em;color:#39a866}
+.cval{font-size:13px;color:#b6ffd4;margin-top:2px}
+.camt{text-align:right}
+.camt .cval{font-size:17px;color:#4dffa0}
+#cStat{font-size:13px;margin-top:10px;color:#2f9a5e;min-height:34px;line-height:1.5}
+#cStat.g{color:#4dffa0}#cStat.e{color:#ff6b6b}#cStat.y{color:#ffcf4d}
+.ride{border:1px dashed #12492a;border-radius:12px;padding:14px;background:#010805}
+.rtime{font-size:44px;letter-spacing:.06em;color:#1f6b3b;text-align:center;font-variant-numeric:tabular-nums;font-weight:700}
+.rtime.on{color:#4dffa0}
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;text-align:center}
+.rval{font-size:16px;color:#b6ffd4;margin-top:2px;font-weight:600}
+details{margin-top:12px;border-top:1px dotted #12492a;padding-top:12px}
+summary{font-size:13px;letter-spacing:.12em;color:#2f9a5e;cursor:pointer;list-style:none;font-weight:600}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"+ ";color:#4dffa0}
+details[open] summary::before{content:"− "}
+</style>
+</head>
+<body>
+
+<h1>ROLLERKEY <span>10</span></h1>
+<div id="status">startet …</div>
+
+<section class="hot">
+  <h2>ROLLER</h2>
+  <div id="bt">nicht verbunden</div>
+  <div class="brands">
+    <button data-b="lime" class="on">LIME</button>
+    <button data-b="voi">VOI</button>
+    <button data-b="bolt">BOLT</button>
+  </div>
+  <div class="grid">
+    <button id="bScan">QR SCANNEN</button>
+    <button id="bTorch">LICHT</button>
+    <button class="wide" id="bConn">VERBINDEN</button>
+    <button class="wide big" id="bUnlock">ENTSPERREN</button>
+    <button id="bLock">SPERREN</button>
+    <button id="bDiag">DIAGNOSE</button>
+    <button id="bQrCopy">CODE KOPIEREN</button>
+  </div>
+  <video id="cam" playsinline muted></video>
+  <div id="qrbox"></div>
+  <div class="hint">Roller antippen, dann verbinden. <b>iOS fragt nach Code:</b> Nummer vom Display, oder 000000.</div>
+</section>
+
+<section>
+  <h2>FAHRT</h2>
+  <div class="ride">
+    <div class="rtime" id="rTime">00:00</div>
+    <div class="rgrid">
+      <div><div class="clab">REST</div><div class="rval" id="rRest">50,00 €</div></div>
+      <div><div class="clab">VERBRAUCHT</div><div class="rval" id="rUsed">0,00 €</div></div>
+    </div>
+    <div class="grid">
+      <button id="bRideStop">BEENDEN</button>
+      <button id="bRideReset">NULLEN</button>
+    </div>
+  </div>
+  <div class="hint">Läuft beim Entsperren los, stoppt beim Sperren. Hält den Roller alle 45 s wach. Bei 0 € kommt ein neues Konto.</div>
+</section>
+
+<section>
+  <h2>KONTO</h2>
+  <div class="row"><span>Mail</span><b id="uMail">–</b></div>
+  <div class="row"><span>Guthaben</span><b id="uBal">–</b></div>
+  <div class="row"><span>Zustand</span><b id="uState">–</b></div>
+  <div class="grid">
+    <button id="bNew">NEUES KONTO</button>
+    <button id="bBal">PRÜFEN</button>
+    <button id="bCode">CODES</button>
+    <button id="bDrop" class="danger">LÖSCHEN</button>
+  </div>
+  <details id="manual">
+    <summary>EIGENE MAIL</summary>
+    <input id="iOwn" type="email" inputmode="email" placeholder="deine@mail.de" autocomplete="email">
+    <button class="wide" id="bOwn" style="margin-top:10px">LINK ANFORDERN</button>
+    <button class="wide" id="bWeb" style="margin-top:10px">LIME IM SAFARI ÖFFNEN</button>
+    <textarea id="iLink" placeholder="Link aus der Mail hier einfügen" style="min-height:70px"></textarea>
+    <button class="wide" id="bLink" style="margin-top:10px">LINK EINLÖSEN</button>
+    <div class="hint">Mail antippen, Link kopieren, hier einfügen.</div>
+  </details>
+  <div id="secPhone" style="display:none">
+    <hr>
+    <h2>TELEFON</h2>
+    <input id="iPhone" type="tel" inputmode="tel" placeholder="+49 151 2345678" autocomplete="tel">
+    <div class="grid">
+      <button id="bOtp">CODE SENDEN</button>
+      <button id="bOtp2">CODE PRÜFEN</button>
+    </div>
+    <input id="iOtp" inputmode="numeric" maxlength="6" placeholder="SMS-Code">
+  </div>
+</section>
+
+<section>
+  <h2>KARTE</h2>
+  <div class="card" id="cardBox">
+    <div class="crow"><span class="chip"></span><span class="brand" id="cBrand">VISA</span></div>
+    <div class="cnum" id="cNum">•••• •••• •••• ••••</div>
+    <div class="cfoot">
+      <div><div class="clab">GÜLTIG</div><div class="cval" id="cExp">--/--</div></div>
+      <div><div class="clab">INHABER</div><div class="cval" id="cName">RIDER</div></div>
+      <div class="camt"><div class="clab">REST</div><div class="cval" id="cAmt">50,00 €</div></div>
+    </div>
+  </div>
+  <div id="cStat"></div>
+  <div class="grid">
+    <button id="bNew2">WÜRFELN</button>
+    <button id="bTest">PRÜFEN</button>
+    <button id="bHunt">BIN-SUCHE</button>
+    <button id="bCopyNum">KOPIEREN</button>
+    <button class="wide" id="bUse">HINTERLEGEN</button>
+    <button class="wide" id="bDel">ENTFERNEN</button>
+  </div>
+  <details>
+    <summary>ECHTE KARTE</summary>
+    <input id="iNum" inputmode="numeric" placeholder="Kartennummer" autocomplete="cc-number">
+    <div class="grid">
+      <input id="iExp" inputmode="numeric" placeholder="MM/JJ" maxlength="5" autocomplete="cc-exp">
+      <input id="iCvc" inputmode="numeric" placeholder="CVC" maxlength="4" autocomplete="cc-csc">
+    </div>
+    <input id="iName" placeholder="Name" autocomplete="cc-name">
+    <button class="wide" id="bTake" style="margin-top:10px">ÜBERNEHMEN</button>
+  </details>
+</section>
+
+<section>
+  <h2>KONSOLE</h2>
+  <div id="log"></div>
+  <div class="grid">
+    <button id="bCopy">KOPIEREN</button>
+    <button id="bClear">LEEREN</button>
+  </div>
+</section>
+
+<section>
+  <h2>WARTUNG</h2>
+  <div class="grid">
+    <button id="bRelay">NETZ TESTEN</button>
+    <button id="bReset" class="danger">ZURÜCKSETZEN</button>
+  </div>
+  <details>
+    <summary>ERWEITERT</summary>
+    <input id="iPk" placeholder="Stripe-Schlüssel pk_live_…">
+    <button class="wide" id="bPk" style="margin-top:10px">SPEICHERN</button>
+    <input id="iBin" placeholder="eigene BIN (6 Stellen)" inputmode="numeric" maxlength="6">
+    <button class="wide" id="bBin" style="margin-top:10px">BIN SETZEN</button>
+  </details>
+</section>
+
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const money = c => (Math.max(0, Math.round(c)) / 100).toFixed(2).replace(".", ",") + " €";
+const uri = encodeURIComponent;
+const cut = (s, n) => String(s || "").replace(/\s+/g, " ").slice(0, n || 70);
+const err = e => (e && e.message) ? e.message : String(e);
+const tb = s => new TextEncoder().encode(s);
+const buf = b => new Uint8Array(b).buffer;
+
+function uuid(){
+  if (crypto.randomUUID) return crypto.randomUUID();
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === "x" ? r : (r & 3 | 8)).toString(16);
+  });
+}
+
+const LOW = 1, LIMIT = 5000, FEE_START = 100, FEE_MIN = 15;
+const COOL_UN = 3000, COOL_RENEW = 60000, WATCHDOG = 180000, HUNT_MAX = 14;
+const KEEP_MS = 45000, MAIL_RUNDEN = 3, MAIL_WARTEN = 45000;
+const JH = { "Content-Type":"application/json", "Accept":"application/json" };
+const JF = { "Content-Type":"application/x-www-form-urlencoded", "Accept":"application/json" };
+const MARKS = ["lime", "voi", "bolt"];
+
+const S = {
+  busy:false, prov:false, brand:"lime", acct:null, card:null, pend:null, gen:0,
+  konten:{ lime:null, voi:null, bolt:null },
+  pks:{ lime:"", voi:"", bolt:"" }, learn:{}, bin:"", mail:"",
+  dev:null, chans:[], notes:0, live:null, deadCh:{}, settle:0,
+  cam:null, raf:0, torch:false, qr:"", picking:false, lastUn:0, renewAt:0, gid:null,
+  keep:0, keepRun:false,
+  ride:{ t0:0, base:0, timer:0, laeuft:false, leer:false }
+};
+
+const save = (k, v) => { try { localStorage.setItem("rk_" + k, JSON.stringify(v)) } catch(_){} };
+const load = (k, d) => { try { const r = localStorage.getItem("rk_" + k); return r === null ? d : JSON.parse(r) } catch(_){ return d } };
+
+function log(t, c){
+  const d = document.createElement("div");
+  if (c) d.className = c;
+  const n = new Date();
+  d.textContent = [n.getHours(), n.getMinutes(), n.getSeconds()].map(x => String(x).padStart(2, "0")).join(":") + " " + t;
+  const box = $("log");
+  box.appendChild(d);
+  box.scrollTop = box.scrollHeight;
+  while (box.children.length > 400) box.removeChild(box.firstChild);
+}
+const stat = (t, c) => { $("status").textContent = t; $("status").className = c || "" };
+const cstat = (t, c) => { $("cStat").textContent = t; $("cStat").className = c || "" };
+
+function guard(fn, ms){
+  return async function(){
+    if (S.busy) return;
+    S.busy = true; paint();
+    let fertig = false;
+    const wd = setTimeout(() => {
+      if (fertig) return;
+      S.busy = false; paint();
+      stat("Zeitüberschreitung.", "err");
+    }, ms || WATCHDOG);
+    try { await fn.apply(this, arguments) }
+    catch(e){ log("Fehler: " + err(e), "e"); stat("Fehler: " + err(e), "err") }
+    finally { fertig = true; clearTimeout(wd); S.busy = false; paint() }
+  };
+}
+
+window.addEventListener("error", e => log("JS: " + (e.message || "?"), "e"));
+window.addEventListener("unhandledrejection", e => log("Promise: " + err(e.reason), "e"));
+
+/* ═══════ NETZ ═══════ */
+const PX_GET = [
+  u => u,
+  u => "https://corsproxy.io/?url=" + uri(u),
+  u => "https://proxy.corsfix.com/?" + u,
+  u => "https://api.codetabs.com/v1/proxy?quest=" + uri(u),
+  u => "https://api.allorigins.win/raw?url=" + uri(u)
+];
+const PX_POST = [
+  u => u,
+  u => "https://corsproxy.io/?url=" + uri(u),
+  u => "https://proxy.corsfix.com/?" + u
+];
+
+async function fetchT(url, opt, ms){
+  opt = opt || {};
+  const list = (opt.method && opt.method !== "GET") ? PX_POST : PX_GET;
+  let last = null;
+  for (let i = 0; i < list.length; i++){
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), ms || 13000);
+    try {
+      const r = await fetch(list[i](url), {
+        method: opt.method || "GET",
+        headers: opt.headers || ((opt.method && opt.method !== "GET") ? JH : {}),
+        body: opt.body, signal: ctl.signal, cache: "no-store", redirect: "follow"
+      });
+      clearTimeout(t);
+      if (r.status === 429 || r.status >= 500){ last = new Error("HTTP " + r.status); continue }
+      if (i > 0 && (r.status === 402 || r.status === 403)){ last = new Error("HTTP " + r.status); continue }
+      return r;
+    } catch(e){ clearTimeout(t); last = e }
+  }
+  throw last || new Error("Netz nicht erreichbar");
+}
+
+function parse(t){
+  if (!t) return null;
+  const a = t.search(/[{\[]/);
+  if (a < 0) return null;
+  const b = Math.max(t.lastIndexOf("}"), t.lastIndexOf("]"));
+  if (b <= a) return null;
+  try { return JSON.parse(t.slice(a, b + 1)) } catch(_){ return null }
+}
+
+async function json(url, opt, ms){
+  const r = await fetchT(url, opt, ms);
+  const t = await r.text();
+  const j = parse(t);
+  if (!j) throw new Error("Antwort unlesbar");
+  return j;
+}
+
+const rnd = n => Array.from({ length:n }, () => "abcdefghijkmnpqrstuvwxyz23456789"[Math.floor(Math.random() * 32)]).join("");
+const zufall = a => a[Math.floor(Math.random() * a.length)];
+
+/* ═══════ WEGWERF-MAIL ═══════ */
+const MT = "https://api.mail.tm";
+const MG = "https://api.mail.gw";
+
+async function tmBox(host){
+  const d = await json(host + "/domains");
+  const doms = (d["hydra:member"] || []).map(x => x.domain).filter(Boolean);
+  if (!doms.length) throw new Error("keine Domain");
+  const dom = zufall(doms);
+
+  let addr = "", pw = "", ok = false;
+  for (let i = 0; i < 3; i++){
+    addr = rnd(10) + "@" + dom;
+    pw = rnd(16);
+    const r = await fetchT(host + "/accounts", { method:"POST", headers:JH, body: JSON.stringify({ address:addr, password:pw }) });
+    if (r.ok){ ok = true; break }
+    if (r.status !== 422) throw new Error("Konto " + r.status);
+  }
+  if (!ok) throw new Error("Adresse vergeben");
+
+  const t = await json(host + "/token", { method:"POST", headers:JH, body: JSON.stringify({ address:addr, password:pw }) });
+  if (!t.id) throw new Error("kein Token");
+  const h = { Authorization:"Bearer " + t.id, Accept:"application/json" };
+
+  return {
+    addr,
+    wait: async (ms, gen) => {
+      const end = Date.now() + ms;
+      while (Date.now() < end && (!gen || gen === S.gen)){
+        await sleep(3500);
+        try {
+          const m = await json(host + "/messages?page=1", { headers:h });
+          for (const it of (m["hydra:member"] || [])){
+            const d2 = await json(host + "/messages/" + it.id, { headers:h });
+            const b = [d2.subject, d2.text, d2.html].filter(Boolean).join("\n");
+            if (b) return b;
+          }
+        } catch(_){}
+      }
+      return null;
+    }
+  };
+}
+
+async function secBox(){
+  const doms = await json("https://www.1secmail.com/api/v1/?action=getDomainList");
+  const liste = Array.isArray(doms) ? doms.filter(Boolean) : [];
+  if (!liste.length) throw new Error("keine Domain");
+  const dom = zufall(liste);
+  const login = rnd(10);
+  const base = "https://www.1secmail.com/api/v1/?";
+  return {
+    addr: login + "@" + dom,
+    wait: async (ms, gen) => {
+      const end = Date.now() + ms;
+      while (Date.now() < end && (!gen || gen === S.gen)){
+        await sleep(3500);
+        try {
+          const l = await json(base + "action=getMessages&login=" + login + "&domain=" + dom);
+          if (Array.isArray(l) && l.length){
+            const m = await json(base + "action=readMessage&login=" + login + "&domain=" + dom + "&id=" + l[0].id);
+            const b = [m.subject, m.textBody, m.body, m.htmlBody].filter(Boolean).join("\n");
+            if (b) return b;
+          }
+        } catch(_){}
+      }
+      return null;
+    }
+  };
+}
+
+async function lolBox(){
+  const j = await json("https://api.tempmail.lol/v2/inbox/create", { method:"POST", headers:JH, body:"{}" }, 11000);
+  if (!j.address || !j.token) throw new Error("keine Adresse");
+  const tok = j.token;
+  return {
+    addr: j.address,
+    wait: async (ms, gen) => {
+      const end = Date.now() + ms;
+      while (Date.now() < end && (!gen || gen === S.gen)){
+        await sleep(3500);
+        try {
+          const g = await json("https://api.tempmail.lol/v2/inbox?token=" + uri(tok));
+          for (const m of (g.emails || [])){
+            const b = [m.subject, m.body, m.html].filter(Boolean).join("\n");
+            if (b) return b;
+          }
+        } catch(_){}
+      }
+      return null;
+    }
+  };
+}
+
+async function guerrillaBox(){
+  const base = "https://api.guerrillamail.com/ajax.php";
+  const j = await json(base + "?f=get_email_address&ip=&agent=bluefy", {}, 11000);
+  if (!j.email_addr || !j.sid_token) throw new Error("keine Adresse");
+  const sid = j.sid_token;
+  return {
+    addr: j.email_addr,
+    wait: async (ms, gen) => {
+      const end = Date.now() + ms;
+      let r = 0;
+      while (Date.now() < end && r < 10 && (!gen || gen === S.gen)){
+        r++;
+        await sleep(4000);
+        try {
+          const l = await json(base + "?f=get_email_list&sid_token=" + uri(sid) + "&offset=0");
+          for (const m of (l.list || [])){
+            if (!m.mail_id) continue;
+            const d = await json(base + "?f=fetch_email&sid_token=" + uri(sid) + "&email_id=" + uri(m.mail_id));
+            const b = [d.mail_subject, d.mail_body].filter(Boolean).join("\n");
+            if (b && b.length > 20) return b;
+          }
+        } catch(_){}
+      }
+      return null;
+    }
+  };
+}
+
+const POSTFAECHER = [() => tmBox(MT), () => tmBox(MG), secBox, lolBox, guerrillaBox];
+
+/* ═══════ MARKEN ═══════ */
+const V = {
+  lime: {
+    label:"LIME", base:"https://web-production.lime.bike/api/rider", auth:"email",
+    hdr: t => ({ Authorization:"Bearer " + t }),
+    me:["/rider"], bal:["/wallet"], payList:["/payment_methods", "/rider"],
+    pay:["/payment_methods"], del:["/payment_methods/"],
+    promo:["/promos/redeem", "/promos"],
+    pages:["https://web-production.lime.bike/", "https://lime.bike/"],
+    codes:["10MINFREE", "5UNLOCKSFREE", "RB232CC", "6YQZFFM", "4AG57PZ",
+           "FREERIDE", "WELCOME10", "LIME10MIN", "5FREEMIN", "10FREEMIN"],
+    name:"LIME RIDER", land:"DE"
+  },
+  voi: {
+    label:"VOI", base:"https://api.voiapp.io", auth:"phone",
+    hdr: t => ({ "x-access-token":t, "x-app-name":"Rider", "x-locale":"de" }),
+    me:["/v1/me", "/v2/me"], bal:["/v2/wallet", "/v1/wallet", "/v2/balance"],
+    payList:["/v2/payment/methods", "/v2/wallet"],
+    pay:["/v2/payment/methods", "/v1/payment/methods"], del:["/v2/payment/methods/"],
+    promo:["/v2/promo/redeem", "/v1/promo/redeem"],
+    pages:["https://www.voi.com/"],
+    codes:[], name:"VOI RIDER", land:"DE"
+  },
+  bolt: {
+    label:"BOLT", base:"https://node.bolt.eu", auth:"phone",
+    hdr: t => ({ Authorization:"Basic " + t }),
+    me:["https://node.bolt.eu/user/user/v1/me"],
+    bal:["https://node.bolt.eu/payment/v1/balance"],
+    payList:["https://node.bolt.eu/payment/v1/paymentMethods"],
+    pay:["https://node.bolt.eu/payment/v1/paymentMethods"],
+    del:["https://node.bolt.eu/payment/v1/paymentMethods/"],
+    promo:["https://node.bolt.eu/payment/v1/promoCode"],
+    pages:["https://bolt.eu/"],
+    codes:[], name:"BOLT RIDER", land:"DE"
+  }
+};
+
+const abs = (b, p) => /^https?:/.test(p) ? p : (V[b].base + p);
+const auth = a => (a && a.t && V[a.b]) ? V[a.b].hdr(a.t) : {};
+
+/* ═══════ LIME-ANMELDUNG ═══════ */
+function grabToken(t){
+  if (!t) return "";
+  for (const p of [
+    /[?&]magic_link_token=([A-Za-z0-9._\-]{8,})/i,
+    /[?&](?:token|login_token|access_token)=([A-Za-z0-9._\-]{16,})/i,
+    /\beyJ[A-Za-z0-9._\-]{30,}/,
+    /"token"\s*:\s*"([^"]{16,})"/
+  ]){
+    const m = t.match(p);
+    if (m) return m[1] || m[0];
+  }
+  return "";
+}
+
+async function limeMagic(addr){
+  const urls = [
+    V.lime.base + "/v3/onboarding/magic-link",
+    V.lime.base + "/v2/onboarding/magic-link",
+    V.lime.base + "/v1/onboarding/magic-link"
+  ];
+  const bodies = [
+    "email=" + uri(addr) + "&user_agreement_country_code=DE&user_agreement_version=4",
+    "email=" + uri(addr) + "&user_agreement_country_code=DE&user_agreement_version=5",
+    "email=" + uri(addr) + "&user_agreement_country_code=DE",
+    "email=" + uri(addr)
+  ];
+  const hdr = Object.assign({}, JF, { "X-Device-Token":uuid(), "x-app-name":"Lime" });
+  let letzter = "unbekannt";
+
+  for (const u of urls){
+    for (const b of bodies){
+      try {
+        const r = await fetchT(u, { method:"POST", headers:hdr, body:b });
+        const txt = await r.text();
+        const j = parse(txt);
+        if (j && j.token) return { token:j.token };
+        if (r.ok) return { sent:true };
+        letzter = "HTTP " + r.status;
+        if (r.status === 422 || r.status === 400) break;
+      } catch(e){ letzter = err(e) }
+    }
+  }
+  throw new Error("Lime lehnt ab (" + letzter + ")");
+}
+
+async function limeLogin(tok){
+  const hdr = Object.assign({}, JF, { "X-Device-Token":uuid() });
+  for (const u of [V.lime.base + "/v2/onboarding/login", V.lime.base + "/v1/onboarding/login"]){
+    try {
+      const r = await fetchT(u, { method:"POST", headers:hdr, body:"magic_link_token=" + uri(tok) });
+      const j = parse(await r.text());
+      if (j && j.token) return j.token;
+    } catch(_){}
+  }
+  throw new Error("Link ungültig oder abgelaufen");
+}
+
+/* ═══════ KONTO-API ═══════ */
+async function probe(a, key, method, build){
+  let last = 0;
+  for (const p of V[a.b][key]){
+    try {
+      const r = await fetchT(abs(a.b, p), { method, headers:auth(a), body: build ? build() : undefined });
+      last = r.status;
+      if (r.ok) return r;
+      if (r.status === 401 || r.status === 403) return r;
+    } catch(_){}
+  }
+  throw new Error("Endpunkt weg (HTTP " + last + ")");
+}
+
+function pickBal(o){
+  if (!o) return null;
+  for (const v of [o.balance_cents, o.wallet && o.wallet.balance_cents, o.data && o.data.balance_cents]){
+    if (typeof v === "number" && isFinite(v)) return Math.round(v);
+  }
+  for (const v of [o.balance, o.wallet && o.wallet.balance, o.data && o.data.balance]){
+    if (typeof v === "number" && isFinite(v)) return Math.round(v * 100);
+  }
+  return null;
+}
+
+function pickMin(o){
+  if (!o) return null;
+  const t = [];
+  const walk = (x, d) => {
+    if (!x || d > 3) return;
+    for (const k in x){
+      const v = x[k];
+      if (typeof v === "number" && isFinite(v) &&
+          ((/min/i.test(k) && /free|bonus|promo|credit/i.test(k)) || /free_?minutes/i.test(k))) t.push(v);
+      else if (v && typeof v === "object") walk(v, d + 1);
+    }
+  };
+  walk(o, 0);
+  return t.length ? Math.max.apply(null, t) : null;
+}
+
+function sync(){
+  S.acct = S.konten[S.brand] || null;
+  if (S.acct && !S.acct.card) S.acct.card = newCard();
+  S.card = S.acct ? S.acct.card : null;
+}
+const saveAcc = () => save("konten", S.konten);
+
+async function prepare(a){
+  if (a.b !== "voi" || !a.refresh) return a.t;
+  if (a.tAt && Date.now() - a.tAt < 60000) return a.t;
+  try {
+    const j = await json(V.voi.base + "/v1/auth/session", { method:"POST", headers:JH, body: JSON.stringify({ authenticationToken:a.refresh }) });
+    if (j.accessToken){
+      a.t = j.accessToken; a.tAt = Date.now();
+      if (j.authenticationToken) a.refresh = j.authenticationToken;
+      saveAcc();
+    }
+  } catch(_){}
+  return a.t;
+}
+
+async function meOk(a){
+  try { const r = await probe(a, "me", "GET"); return r.ok }
+  catch(e){ return /401|403/.test(err(e)) ? false : null }
+}
+
+/* ═══════ FAHRTZÄHLER ═══════ */
+const rideSecs = () => S.ride.t0 ? Math.floor((Date.now() - S.ride.t0) / 1000) : 0;
+
+function rideUsed(){
+  const s = rideSecs();
+  const lauf = S.ride.t0 ? (FEE_START + Math.round(s * FEE_MIN / 60)) : 0;
+  return Math.min(LIMIT, Math.round((S.ride.base || 0) + lauf));
+}
+
+function rideClock(s){
+  const h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60, x = s % 60;
+  const p = n => String(n).padStart(2, "0");
+  return (h ? p(h) + ":" : "") + p(m) + ":" + p(x);
+}
+
+function ridePaint(){
+  const u = rideUsed();
+  $("rTime").textContent = rideClock(rideSecs());
+  $("rUsed").textContent = money(u);
+  $("rRest").textContent = money(LIMIT - u);
+  $("cAmt").textContent = money(LIMIT - u);
+  $("rTime").className = S.ride.laeuft ? "rtime on" : "rtime";
+  $("bRideStop").disabled = S.busy || !S.ride.laeuft;
+  $("bRideReset").disabled = S.busy || S.ride.laeuft;
+}
+
+function rideTimer(){
+  clearInterval(S.ride.timer);
+  S.ride.timer = setInterval(() => {
+    if (!S.ride.laeuft) return;
+    if (rideUsed() >= LIMIT && !S.ride.leer){
+      S.ride.leer = true;
+      log("Limit erreicht – neues Konto.", "y");
+      stat("Limit erreicht – neues Konto.", "warn");
+      if (V[S.brand].auth === "email" && Date.now() - S.renewAt > COOL_RENEW){
+        S.renewAt = Date.now();
+        provision(true).catch(e => log("Wechsel: " + err(e), "e"));
+      }
+    }
+    ridePaint();
+  }, 1000);
+}
+
+function startKeep(){
+  stopKeep();
+  S.keep = setInterval(async () => {
+    if (!S.ride.laeuft || S.busy || S.keepRun) return;
+    if (!S.dev || !S.dev.gatt || !S.dev.gatt.connected) return;
+    S.keepRun = true;
+    try { await strike("un", [S.learn.wort || "ON"], 1, 1) }
+    catch(_){}
+    finally { S.keepRun = false }
+  }, KEEP_MS);
+}
+function stopKeep(){ clearInterval(S.keep); S.keep = 0; S.keepRun = false }
+
+function rideStart(){
+  if (S.ride.laeuft) return;
+  if (rideUsed() >= LIMIT){ S.ride.base = 0; S.ride.leer = false }
+  S.ride.t0 = Date.now();
+  S.ride.laeuft = true;
+  rideTimer();
+  startKeep();
+  save("ride", { t0:S.ride.t0, base:S.ride.base });
+  ridePaint();
+}
+
+function rideStop(){
+  if (!S.ride.laeuft) return;
+  S.ride.base = rideUsed();
+  S.ride.t0 = 0;
+  S.ride.laeuft = false;
+  clearInterval(S.ride.timer); S.ride.timer = 0;
+  stopKeep();
+  save("ride", { t0:0, base:S.ride.base });
+  ridePaint();
+  log("Fahrt beendet · " + money(S.ride.base), "y");
+}
+
+function rideReset(){
+  clearInterval(S.ride.timer);
+  stopKeep();
+  S.ride = { t0:0, base:0, timer:0, laeuft:false, leer:false };
+  save("ride", { t0:0, base:0 });
+  ridePaint();
+}
+
+/* ═══════ KARTE ═══════ */
+const BIN = {
+  visa:["492900", "492901", "492902", "415000", "415001", "453176", "403300", "426100",
+        "448500", "476100", "459100", "492940", "415010"],
+  mc:["522100", "522101", "545400", "543200", "511100", "540400", "553200", "512000"]
+};
+const NAMEN = ["M. Schmidt", "A. Weber", "J. Fischer", "L. Wagner", "T. Becker", "S. Hoffmann"];
+
+function luhn(s){
+  let sum = 0, alt = false;
+  for (let i = s.length - 1; i >= 0; i--){
+    let d = +s[i];
+    if (alt){ d *= 2; if (d > 9) d -= 9 }
+    sum += d; alt = !alt;
+  }
+  return sum % 10 === 0;
+}
+function fixLuhn(b){
+  for (let c = 0; c < 10; c++) if (luhn(b + c)) return b + c;
+  return b + "0";
+}
+function misch(a){
+  const b = a.slice();
+  for (let i = b.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [b[i], b[j]] = [b[j], b[i]];
+  }
+  return b;
+}
+
+function newCard(pre){
+  pre = pre || (S.bin && S.bin.length === 6 ? S.bin : "");
+  if (!pre){
+    const pool = BIN[Math.random() < 0.8 ? "visa" : "mc"];
+    pre = zufall(pool);
+  }
+  const netz = pre[0] === "5" ? "mc" : "visa";
+  let body = pre;
+  while (body.length < 15) body += Math.floor(Math.random() * 10);
+  const jahr = new Date().getFullYear() + (Math.random() < 0.6 ? 2 : 3);
+  return {
+    num:fixLuhn(body), netz, bin:pre,
+    mm:String(1 + Math.floor(Math.random() * 12)).padStart(2, "0"),
+    yy:String(jahr).slice(2),
+    cvc:String(100 + Math.floor(Math.random() * 900)),
+    name:zufall(NAMEN),
+    pm:"", tok:"", ok:false, limit:LIMIT, quelle:"fake"
+  };
+}
+
+function pruefeCard(c){
+  const m = [];
+  if (!/^\d{13,19}$/.test(c.num)) m.push("Nummer");
+  else if (!luhn(c.num)) m.push("Prüfziffer");
+  if (!(+c.mm >= 1 && +c.mm <= 12)) m.push("Monat");
+  const j = new Date().getFullYear() % 100, mo = new Date().getMonth() + 1;
+  if (!/^\d{2}$/.test(c.yy)) m.push("Jahr");
+  else if (+c.yy < j || (+c.yy === j && +c.mm < mo)) m.push("abgelaufen");
+  if (!/^\d{3,4}$/.test(c.cvc)) m.push("CVC");
+  if (!c.name || c.name.trim().length < 2) m.push("Name");
+  return m;
+}
+
+const PKRX = /pk_(?:live|test)_[A-Za-z0-9]{20,}/;
+
+async function getPk(b){
+  if (S.pks[b]) return S.pks[b];
+  for (const page of V[b].pages){
+    let html = "";
+    try {
+      const r = await fetchT(page, {}, 10000);
+      if (!r.ok) continue;
+      html = await r.text();
+    } catch(_){ continue }
+    const d = html.match(PKRX);
+    if (d){ S.pks[b] = d[0]; save("pk_" + b, d[0]); $("iPk").value = d[0]; return d[0] }
+    const srcs = [...html.matchAll(/src="([^"]+\.js[^"]*)"/g)].map(m => m[1]).slice(0, 10);
+    for (const s of srcs){
+      let u;
+      try { u = s.startsWith("http") ? s : new URL(s, page).href } catch(_){ continue }
+      try {
+        const r2 = await fetchT(u, {}, 12000);
+        if (!r2.ok) continue;
+        const m = (await r2.text()).match(PKRX);
+        if (m){ S.pks[b] = m[0]; save("pk_" + b, m[0]); $("iPk").value = m[0]; return m[0] }
+      } catch(_){}
+    }
+  }
+  return "";
+}
+
+let stripeP = null;
+function loadStripe(){
+  if (window.Stripe) return Promise.resolve();
+  if (stripeP) return stripeP;
+  stripeP = new Promise((res, rej) => {
+    const s = document.createElement("script");
+    s.src = "https://js.stripe.com/v3";
+    s.onload = () => res();
+    s.onerror = () => { stripeP = null; rej(new Error("Stripe.js nicht ladbar")) };
+    document.head.appendChild(s);
+  });
+  return stripeP;
+}
+
+function cardInfo(c, land){
+  return {
+    number:c.num, exp_month:+c.mm, exp_year:+c.yy, cvc:c.cvc, name:c.name || "Rider",
+    billing_details:{ name:c.name || "Rider", email:"rider@example.com",
+      address:{ line1:"Musterstr. 1", city:"Berlin", postal_code:"10115", country:land } },
+    address_country:land, address_line1:"Musterstr. 1",
+    address_city:"Berlin", address_zip:"10115"
+  };
+}
+
+async function stripeObj(b){
+  const pk = await getPk(b);
+  if (!pk) throw new Error("kein Stripe-Schlüssel");
+  await loadStripe();
+  if (!window.Stripe) throw new Error("Stripe.js fehlt");
+  return window.Stripe(pk);
+}
+
+async function tokenize(card, brand){
+  const land = V[brand].land || "DE";
+  const out = { pm:"", tok:"", fehler:"" };
+  let st;
+  try { st = await stripeObj(brand) }
+  catch(e){ out.fehler = err(e); return out }
+  try {
+    const r = await st.createToken({ card: cardInfo(card, land) });
+    if (r.token) out.tok = r.token.id;
+    else if (r.error) out.fehler = r.error.code || r.error.message || "abgelehnt";
+  } catch(e){ out.fehler = err(e) }
+  if (!out.tok) return out;
+  if (st.createPaymentMethod){
+    try {
+      const r = await st.createPaymentMethod({ type:"card", card: cardInfo(card, land) });
+      if (r.paymentMethod) out.pm = r.paymentMethod.id;
+      else if (r.error) out.fehler += " pm:" + (r.error.code || "");
+    } catch(e){ out.fehler += " pm:" + err(e) }
+  }
+  return out;
+}
+
+function setzeCard(c, ids){
+  const a = S.acct;
+  if (a){ a.card = c; saveAcc() }
+  S.card = c;
+  if (ids){ c.pm = ids.pm; c.tok = ids.tok }
+  paint();
+}
+
+async function hunt(){
+  const brand = S.acct ? S.acct.b : S.brand;
+  let pool = misch(BIN.visa.concat(BIN.mc));
+  if (S.bin) pool = [S.bin].concat(pool.filter(p => p !== S.bin));
+  pool = pool.slice(0, HUNT_MAX);
+  let fehler = "";
+
+  for (let i = 0; i < pool.length; i++){
+    const c = newCard(pool[i]);
+    cstat("BIN " + (i + 1) + "/" + pool.length + " · " + pool[i] + " …", "");
+    const ids = await tokenize(c, brand);
+    if (ids.tok){
+      setzeCard(c, ids);
+      cstat("BIN " + pool[i] + " genommen. Jetzt HINTERLEGEN.", "g");
+      stat("Karte gefunden.", "ok");
+      return true;
+    }
+    fehler = ids.fehler || "abgelehnt";
+    log("BIN " + pool[i] + ": " + cut(fehler, 50), "y");
+    await sleep(/rate|limit/i.test(fehler) ? 1200 : 160);
+  }
+  cstat("Keine BIN genommen (" + cut(fehler, 50) + ").", "e");
+  stat("BIN-Suche erfolglos.", "warn");
+  return false;
+}
+
+async function testCard(){
+  const a = S.acct;
+  if (a && !a.card) a.card = newCard();
+  if (!a && !S.card) S.card = newCard();
+  const c = a ? a.card : S.card;
+  S.card = c;
+
+  const m = pruefeCard(c);
+  if (m.length){ cstat("Unvollständig: " + m.join(", "), "e"); return false }
+
+  cstat("Stripe wird gefragt …", "");
+  const ids = await tokenize(c, a ? a.b : S.brand);
+  if (!ids.tok){
+    cstat("Stripe lehnt ab: " + cut(ids.fehler || "?", 60), "e");
+    stat("Karte durchgefallen.", "warn");
+    return false;
+  }
+  c.pm = ids.pm; c.tok = ids.tok;
+  if (a) saveAcc();
+  paint();
+  cstat("Angenommen. Jetzt HINTERLEGEN.", "g");
+  stat("Karte brauchbar.", "ok");
+  return true;
+}
+
+async function takeManual(){
+  const num = $("iNum").value.replace(/\D/g, "");
+  const exp = $("iExp").value.replace(/\D/g, "");
+  const cvc = $("iCvc").value.replace(/\D/g, "");
+  const name = $("iName").value.trim();
+
+  if (num.length < 13) throw new Error("Nummer zu kurz");
+  if (!luhn(num)) throw new Error("Prüfziffer falsch");
+  if (exp.length < 3) throw new Error("Ablauf fehlt");
+
+  let mm, yy;
+  if (exp.length === 3){ mm = "0" + exp[0]; yy = exp.slice(1) }
+  else if (exp.length >= 4){ mm = exp.slice(0, 2); yy = exp.slice(-2) }
+  else { mm = "0" + exp[0]; yy = exp.slice(1) }
+
+  const c = { num, netz:num[0] === "5" ? "mc" : "visa", bin:num.slice(0, 6), mm, yy,
+    cvc:cvc || "000", name:name || "Rider", pm:"", tok:"", ok:false, limit:LIMIT, quelle:"echt" };
+  const m = pruefeCard(c);
+  if (m.length) throw new Error(m.join(", "));
+
+  setzeCard(c, null);
+  const ids = await tokenize(c, S.acct ? S.acct.b : S.brand);
+  if (!ids.tok){
+    cstat("Abgelehnt: " + cut(ids.fehler || "?", 60), "e");
+    return false;
+  }
+  c.pm = ids.pm; c.tok = ids.tok;
+  if (S.acct) saveAcc();
+  paint();
+  cstat("Echte Karte angenommen.", "y");
+  stat("Echte Karte brauchbar.", "ok");
+  return true;
+}
+
+function cardShapes(c){
+  const o = [];
+  if (c.pm){
+    o.push({ payment_method:{ stripe_payment_method_id:c.pm, type:"card" } });
+    o.push({ payment_method:{ payment_method_id:c.pm } });
+    o.push({ payment_method_id:c.pm });
+  }
+  if (c.tok){
+    o.push({ payment_method:{ token:c.tok } });
+    o.push({ payment_method_token:c.tok });
+    o.push({ stripe_token:c.tok });
+  }
+  o.push({ payment_method:{ type:"card", card:{ token:c.tok || c.pm } } });
+  return o;
+}
+
+async function cardStored(a){
+  try {
+    const r = await probe(a, "payList", "GET");
+    const raw = await r.text();
+    const j = parse(raw);
+    if (j){
+      const arr = j.payment_methods || j.paymentMethods || j["hydra:member"] || j.data || (Array.isArray(j) ? j : null);
+      if (Array.isArray(arr) && arr.length) return true;
+      const w = j.user || (j.data && j.data.attributes) || j;
+      if (w && (w.default_payment_method || w.has_payment_method || w.payment_method_id)) return true;
+    }
+    if (/visa|mastercard|last4/i.test(raw)) return true;
+  } catch(_){}
+  return false;
+}
+
+async function attachCard(silent){
+  const a = S.acct;
+  if (!a || !a.t) throw new Error("kein Konto");
+  await prepare(a);
+  if (!a.card) a.card = newCard();
+  S.card = a.card;
+
+  if (!a.card.pm && !a.card.tok){
+    const ids = await tokenize(a.card, a.b);
+    if (!ids.tok) throw new Error(ids.fehler || "Stripe lehnt ab");
+    a.card.pm = ids.pm; a.card.tok = ids.tok;
+    saveAcc(); paint();
+  }
+
+  const shapes = cardShapes(a.card);
+  for (const p of V[a.b].pay){
+    for (const s of shapes){
+      let r;
+      try { r = await fetchT(abs(a.b, p), { method:"POST", headers:auth(a), body: JSON.stringify(s) }) }
+      catch(_){ continue }
+      if (!r.ok) continue;
+      await sleep(300);
+      if (await cardStored(a)){
+        a.card.ok = true;
+        saveAcc(); paint();
+        cstat("Karte hinterlegt.", "g");
+        if (!silent) stat("Karte hinterlegt.", "ok");
+        return true;
+      }
+    }
+  }
+  if (!silent) stat("Karte nicht bestätigt.", "warn");
+  return false;
+}
+
+async function deleteCard(){
+  const a = S.acct;
+  const id = a && a.card && (a.card.pm || a.card.tok);
+  if (id && a.t){
+    await prepare(a);
+    for (const p of V[a.b].del){
+      try {
+        const r = await fetchT(abs(a.b, p + uri(id)), { method:"DELETE", headers:auth(a) });
+        if (r.ok || r.status === 404) break;
+      } catch(_){}
+    }
+  }
+  if (a){ a.card = newCard(); S.card = a.card; saveAcc() }
+  else S.card = newCard();
+  paint(); cstat("Karte entfernt.", "");
+  stat("Karte entfernt.", "ok");
+}
+
+/* ═══════ ANZEIGE ═══════ */
+function paint(){
+  const a = S.acct, c = S.card;
+
+  $("uMail").textContent = a && (a.e || a.ph) ? (a.e || a.ph) : "–";
+  $("uBal").textContent = a && typeof a.bal === "number" ? money(a.bal) : "–";
+  $("uState").textContent = S.ride.laeuft ? "in Fahrt"
+    : (!a ? "keins" : (a.t ? (a.used ? "benutzt" : "bereit") : "unvollständig"));
+
+  $("cBrand").textContent = c && c.netz === "mc" ? "MASTERCARD" : "VISA";
+  $("cName").textContent = c && c.name ? c.name.toUpperCase() : V[S.brand].name;
+  if (c){
+    $("cNum").textContent = c.num.replace(/(.{4})/g, "$1 ").trim();
+    $("cExp").textContent = c.mm + "/" + c.yy;
+    $("cardBox").className = "card" + (c.ok ? "" : " off");
+  } else {
+    $("cNum").textContent = "•••• •••• •••• ••••";
+    $("cExp").textContent = "--/--";
+    $("cardBox").className = "card off";
+  }
+
+  document.querySelectorAll("button").forEach(b => b.disabled = S.busy);
+  ["bCopy", "bClear"].forEach(id => { if ($(id)) $(id).disabled = false });
+  if (S.prov) ["bNew", "bBal", "bCode", "bDrop", "bUse", "bHunt", "bTest", "bNew2",
+               "bDel", "bTake", "bOtp", "bOtp2"].forEach(id => { if ($(id)) $(id).disabled = true });
+
+  document.querySelectorAll(".brands button").forEach(b => {
+    b.className = b.dataset.b === S.brand ? "on" : "";
+    b.disabled = S.busy;
+  });
+
+  $("bNew").textContent = V[S.brand].auth === "phone" ? "NUMMER PRÜFEN" : "NEUES KONTO";
+  $("bNew2").textContent = c && c.quelle === "echt" ? "ZURÜCK ZU FAKE" : "WÜRFELN";
+  $("secPhone").style.display = V[S.brand].auth === "phone" ? "" : "none";
+  $("bTorch").className = S.torch ? "aktiv" : "";
+
+  const bt = $("bt");
+  if (S.dev && S.dev.gatt && S.dev.gatt.connected){
+    bt.textContent = "verbunden · " + S.chans.length + " Kanäle";
+    bt.className = "on";
+  } else {
+    bt.textContent = S.dev ? "getrennt – VERBINDEN" : "nicht verbunden";
+    bt.className = "";
+  }
+
+  ridePaint();
+}
+
+/* ═══════ KONTO-LOGIK ═══════ */
+async function checkBal(silent){
+  const a = S.acct;
+  if (!a || !a.t) throw new Error("kein Konto");
+  await prepare(a);
+
+  let b = null, min = null;
+  try {
+    const r = await probe(a, "bal", "GET");
+    const roh = parse(await r.text()) || {};
+    b = pickBal(roh);
+    min = pickMin(roh);
+  } catch(_){}
+
+  if (typeof min === "number"){
+    a.min = min; saveAcc(); paint();
+    if (!silent) stat(min > 0 ? "Noch " + min + " Freiminuten." : "Keine Freiminuten mehr.", min > 0 ? "ok" : "warn");
+    if (min <= 0 && Date.now() - S.renewAt > COOL_RENEW && V[a.b].auth === "email"){
+      S.renewAt = Date.now();
+      log("Freiminuten leer – neues Konto.", "y");
+      provision(true).catch(e => log("Wechsel: " + err(e), "e"));
+      return null;
+    }
+  }
+
+  if (typeof b === "number"){
+    a.bal = b; saveAcc(); paint();
+    if (typeof min !== "number" && !silent) stat("Guthaben " + money(b), b > LOW ? "ok" : "warn");
+    if (b <= LOW && Date.now() - S.renewAt > COOL_RENEW && V[a.b].auth === "email"){
+      S.renewAt = Date.now();
+      log("Guthaben bei " + money(b) + " – automatischer Wechsel.", "y");
+      provision(true).catch(e => log("Wechsel: " + err(e), "e"));
+    }
+    return b;
+  }
+
+  const gesund = await meOk(a);
+  if (gesund === false){
+    if (!silent) stat("Token abgelaufen – NEUES KONTO.", "warn");
+    if (Date.now() - S.renewAt > COOL_RENEW && V[a.b].auth === "email"){
+      S.renewAt = Date.now();
+      provision(true).catch(e => log("Wechsel: " + err(e), "e"));
+    }
+  } else if (!silent && typeof min !== "number"){
+    stat("Stand nicht lesbar.", "warn");
+  }
+  return null;
+}
+
+async function adopt(data){
+  data.card = data.card || newCard();
+  data.b = data.b || S.brand;
+
+  const gesund = await meOk(data);
+  if (gesund === false) throw new Error("Token wird abgelehnt");
+
+  S.konten[data.b] = data;
+  sync();
+  S.renewAt = Date.now();
+  saveAcc(); paint();
+
+  log("Konto bereit · " + (data.e || data.ph), "g");
+  stat("Konto bereit", "ok");
+  attachCard(true).catch(e => log("Karte: " + err(e), "y"));
+}
+
+async function redeem(code){
+  const a = S.acct;
+  const r = await probe(a, "promo", "POST", () => JSON.stringify({ promo_code:code, code:code }));
+  const j = parse(await r.text());
+  if (!j) return false;
+  if (j.error || (Array.isArray(j.errors) && j.errors.length)) return false;
+  return true;
+}
+
+async function redeemAll(){
+  const a = S.acct;
+  if (!a || !V[a.b].codes.length) return 0;
+  await prepare(a);
+  let n = 0, fehl = 0;
+  for (const c of V[a.b].codes){
+    try { if (await redeem(c)) n++; else fehl++ } catch(_){ fehl++ }
+    if (fehl >= 4 && n === 0) break;
+    await sleep(250);
+  }
+  return n;
+}
+
+async function killAccount(a){
+  if (!a || !a.t) return false;
+  await prepare(a);
+  const id = a.card && (a.card.pm || a.card.tok);
+  if (id){
+    for (const p of V[a.b].del){
+      try {
+        const r = await fetchT(abs(a.b, p + uri(id)), { method:"DELETE", headers:auth(a) });
+        if (r.ok || r.status === 404) break;
+      } catch(_){}
+    }
+  }
+  for (const [p, m] of [["/rider", "DELETE"], ["/account", "DELETE"], ["/rider/delete", "POST"], ["/user", "DELETE"]]){
+    try {
+      const r = await fetchT(abs(a.b, p), { method:m, headers:auth(a), body: m === "POST" ? "{}" : undefined });
+      log("Löschen " + p + ": HTTP " + r.status, r.ok || r.status === 404 ? "g" : "y");
+      if (r.ok || r.status === 404) return true;
+    } catch(e){ log("Löschen " + p + ": " + err(e), "y") }
+  }
+  return false;
+}
+
+/* Mehrere Runden: neue Adresse, neuer Versuch. */
+async function provision(fresh){
+  if (V[S.brand].auth !== "email"){ await sendOtp(); return }
+  if (S.prov) return;
+
+  const my = ++S.gen;
+  const alt = S.acct;
+  S.prov = true;
+
+  if (fresh){
+    S.konten[S.brand] = null;
+    sync(); saveAcc();
+    log("Altes Konto verworfen.", "y");
+  }
+  paint();
+
+  try {
+    log(fresh ? "=== NEUES KONTO ===" : "=== KONTO ANLEGEN ===", "h");
+    let token = "", letzter = null;
+
+    for (let runde = 1; runde <= MAIL_RUNDEN && !token; runde++){
+      if (my !== S.gen) return;
+      stat("Wegwerf-Mail wird angelegt … (" + runde + "/" + MAIL_RUNDEN + ")", "warn");
+
+      let box = null;
+      for (const f of POSTFAECHER){
+        if (my !== S.gen) return;
+        try { box = await f(); break }
+        catch(e){ letzter = e; log("Postfach: " + err(e), "y") }
+      }
+      if (!box){ log("Kein Postfach in Runde " + runde + ".", "y"); continue }
+      log("Mail: " + box.addr, "g");
+
+      let r;
+      try { r = await limeMagic(box.addr) }
+      catch(e){ letzter = e; log("Runde " + runde + ": " + err(e), "y"); continue }
+      if (r.token){ token = r.token; break }
+
+      log("Warte auf Mail …", "y");
+      const text = await box.wait(MAIL_WARTEN, my);
+      if (my !== S.gen) return;
+      if (!text){ letzter = new Error("keine Mail"); log("Runde " + runde + ": keine Mail.", "y"); continue }
+
+      const roh = grabToken(text);
+      if (!roh){ letzter = new Error("kein Token"); log("Runde " + runde + ": kein Token.", "y"); continue }
+
+      try { token = await limeLogin(roh) }
+      catch(e){ letzter = e; log("Runde " + runde + ": " + err(e), "y") }
+    }
+
+    if (!token) throw new Error("Anmeldung gescheitert (" + err(letzter) + ")");
+    if (my !== S.gen) return;
+
+    await adopt({ b:"lime", e:letzter && letzter.addr, t:token, bal:0, used:false, e2:"" });
+    const n = await redeemAll();
+    log(n + " Codes eingelöst.", n ? "g" : "y");
+    await checkBal(true);
+    if (fresh && alt && alt.t) killAccount(alt).catch(() => {});
+  } finally {
+    S.prov = false;
+    paint();
+  }
+}
+
+function cc(phone){
+  const p = phone.replace(/[^\d+]/g, "");
+  for (const [pre, c] of [["+49","DE"], ["+43","AT"], ["+41","CH"], ["+33","FR"], ["+39","IT"],
+    ["+34","ES"], ["+46","SE"], ["+47","NO"], ["+45","DK"], ["+31","NL"], ["+32","BE"],
+    ["+48","PL"], ["+351","PT"], ["+44","GB"]]) if (p.startsWith(pre)) return c;
+  return "DE";
+}
+
+async function sendOtp(){
+  const brand = S.brand;
+  if (V[brand].auth !== "phone") throw new Error("nur Voi und Bolt");
+  const phone = $("iPhone").value.trim();
+  if (phone.replace(/\D/g, "").length < 7) throw new Error("Nummer eingeben (+49 …)");
+  save("phone_" + brand, phone);
+
+  stat("SMS wird angefordert …", "warn");
+  if (brand === "voi"){
+    const num = phone.replace(/[^\d]/g, "").replace(/^00/, "");
+    const j = await json(V.voi.base + "/v1/auth/verify/phone", { method:"POST", headers:JH,
+      body: JSON.stringify({ country_code:cc(phone), phone_number:num }) });
+    if (!j.token) throw new Error("kein Token");
+    S.pend = { b:brand, vtok:j.token };
+  } else {
+    const id = S.gid = S.gid || load("gid", "") || uuid();
+    save("gid", id);
+    const q = "version=CI.23.0&deviceId=" + id + "&deviceType=iphone&device_name=iPhone14,3&device_os_version=iOS17.0&language=de";
+    const intl = await json("https://user.bolt.eu/user/getMobileNumberInInternationalFormat?phone=" + uri(phone) + "&" + q);
+    const num = intl && intl.data && intl.data.phone_number_in_international_format;
+    if (!num) throw new Error("Nummer unlesbar");
+    const j = await json("https://user.bolt.eu/user/register/phone?" + q, { method:"POST", headers:JH, body: JSON.stringify({ phone:num, phone_uuid:id }) });
+    if (j && j.code !== 0) throw new Error(j.message || "SMS nicht gesendet");
+    S.pend = { b:brand, id, num };
+  }
+  stat("SMS unterwegs – Code eintragen.", "warn");
+  log("SMS angefordert.", "g");
+}
+
+async function verifyOtp(){
+  const code = $("iOtp").value.trim();
+  if (!S.pend) throw new Error("erst CODE SENDEN");
+  if (code.length < 4) throw new Error("Code eingeben");
+  stat("Code wird geprüft …", "warn");
+
+  if (S.pend.b === "voi"){
+    const mail = $("iOwn").value.trim() || S.mail || (rnd(8) + "@gmail.com");
+    const j = await json(V.voi.base + "/v2/auth/verify/code", { method:"POST", headers:JH,
+      body: JSON.stringify({ code, token:S.pend.vtok }) });
+
+    let at = j.authToken || "";
+    if (!at && j.verificationStep === "emailValidationRequired"){
+      const p = await json(V.voi.base + "/v1/auth/verify/presence", { method:"POST", headers:JH,
+        body: JSON.stringify({ email:mail, token:S.pend.vtok }) });
+      at = p.authToken || "";
+    }
+    if (!at && j.verificationStep === "deviceActivationRequired"){
+      const p = await json(V.voi.base + "/v3/auth/verify/device/activate", { method:"POST", headers:JH,
+        body: JSON.stringify({ token:S.pend.vtok, provider:"sms" }) });
+      at = p.authToken || "";
+    }
+    if (!at) throw new Error("Code abgelehnt");
+
+    const s = await json(V.voi.base + "/v1/auth/session", { method:"POST", headers:JH,
+      body: JSON.stringify({ authenticationToken:at }) });
+    if (!s.accessToken) throw new Error("keine Sitzung");
+    await adopt({ b:"voi", ph:$("iPhone").value.trim(), e:mail, t:s.accessToken,
+      refresh:s.authenticationToken, tAt:Date.now(), bal:0, used:false });
+  } else {
+    const q = "version=CI.23.0&deviceId=" + S.pend.id + "&deviceType=iphone&device_name=iPhone14,3&device_os_version=iOS17.0&language=de";
+    const j = await json("https://node.bolt.eu/user/user/v1/confirmVerification?" + q, { method:"POST", headers:JH,
+      body: JSON.stringify({ phone:S.pend.num, phone_uuid:S.pend.id, verification:{ confirmation_data:{ code } } }) });
+    if (!j || j.code !== 0) throw new Error(j && j.message || "Code abgelehnt");
+    await adopt({ b:"bolt", ph:$("iPhone").value.trim(), t:btoa(S.pend.num + ":" + S.pend.id), bal:0, used:false });
+  }
+  S.pend = null;
+  $("iOtp").value = "";
+}
+
+/* ═══════ BLUETOOTH ═══════ */
+const ASCII_UN = ["WS", "ON", "K1", "WAKE", "UN", "U1", "UNLOCK", "UL", "OPEN", "GO",
+                  "START", "RELEASE", "UNL", "S1", "U"];
+const ASCII_LK = ["L1", "LOCK", "KS", "K0", "LCK", "CLOSE", "OF", "L0", "M0", "S0", "L"];
+
+/* Vier Prüfsummen-Varianten statt zwei. */
+function nbFrame(cmd, payload, lenMode, crcMode){
+  const body = [cmd].concat(payload);
+  const len = lenMode ? body.length + 1 : payload.length + 1;
+  const roh = [0x5A, 0xA5, len].concat(body);
+  let sum = 0, x = 0;
+  for (const b of roh){ sum += b; x ^= b }
+  const crc = crcMode === 0 ? ((~sum) & 0xFF)
+            : crcMode === 1 ? (x & 0xFF)
+            : crcMode === 2 ? (sum & 0xFF)
+            : 0x00;
+  return buf(roh.concat([crc]));
+}
+
+function binFrames(kind){
+  const cmd = kind === "lk" ? 0x21 : 0x22;
+  const pay = kind === "lk" ? [0x00] : [0x01];
+  const out = [];
+  for (const lm of [0, 1]) for (const cm of [0, 1, 2, 3]){
+    out.push(nbFrame(cmd, [], lm, cm));
+    out.push(nbFrame(cmd, pay, lm, cm));
+  }
+  return out;
+}
+
+const RAHMEN = [
+  s => buf(tb(s)),
+  s => buf(tb("*" + s + "#")),
+  s => buf(tb(s + "\r\n")),
+  s => buf(tb("\x02" + s + "\x03")),
+  s => buf(tb("#" + s + "#")),
+  s => buf(tb(s + "\r")),
+  s => buf(tb("$" + s + "#")),
+  s => buf(tb(s + "\n"))
+];
+
+const CMDS = {
+  lime:{ un:ASCII_UN, lk:ASCII_LK },
+  voi:{ un:ASCII_UN, lk:ASCII_LK },
+  bolt:{ un:ASCII_UN, lk:ASCII_LK }
+};
+
+const UART128 = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+const UART16 = ["0000ffe0", "0000fff0", "0000ff00", "0000ffb0", "0000fe95",
+                "0000fee0", "0000ffd0", "0000ff01", "0000fff1", "49535343"];
+const UARTREQ = [0xffe0, 0xfff0, 0xffb0, 0xff00, 0xfe95, 0xfee0, 0xffd0, UART128,
+                 "49535343-fe7d-4ae5-8fa9-9fafd205e455"];
+const isUart = u => {
+  const s = u.toLowerCase();
+  return s.includes("6e400001") || s.includes("49535343") || UART16.some(k => s.startsWith(k));
+};
+
+function btErr(e){
+  const m = String(e && e.message || e);
+  if (/cancel/i.test(m) || /No device/i.test(m)) return "Auswahl abgebrochen";
+  if (/NetworkError|GATT/i.test(m)) return "Verbindung verloren";
+  if (/NotFound/i.test(m)) return "Dienst nicht gefunden";
+  if (/Security/i.test(m)) return "Bluetooth-Berechtigung fehlt";
+  return m;
+}
+
+async function openLink(dev){
+  for (let i = 0; i < 5; i++){
+    if (i) log("Verbindung neu aufbauen …", "y");
+    try { await dev.gatt.connect() } catch(_){}
+    await sleep(1400);
+    if (dev.gatt.connected){
+      await sleep(1500);
+      if (dev.gatt.connected){
+        try { return await dev.gatt.connect() } catch(_){ return null }
+      }
+    }
+  }
+  return null;
+}
+
+async function collect(srv){
+  let svcs = [];
+  try { svcs = await srv.getPrimaryServices() } catch(_){}
+  if (!svcs.length){
+    for (const u of UARTREQ){ try { svcs.push(await srv.getPrimaryService(u)) } catch(_){} }
+  }
+  const bevorzugt = load("prefer_" + S.brand, "");
+  const gelernt = (S.learn && S.learn.uuid) || "";
+  const out = [];
+  for (const s of svcs){
+    let chs = [];
+    try { chs = await s.getCharacteristics() } catch(_){ continue }
+    const meldet = chs.some(c => c.properties.notify || c.properties.indicate);
+    for (const c of chs){
+      if (!(c.properties.write || c.properties.writeWithoutResponse)) continue;
+      let score = 0;
+      if (meldet) score += 5;
+      if (isUart(s.uuid)) score += 3;
+      if (c.properties.write) score += 1;
+      if (bevorzugt && c.uuid === bevorzugt) score += 12;
+      if (gelernt && c.uuid === gelernt) score += 20;
+      out.push({ c, svc:s.uuid, kind:c.properties.writeWithoutResponse ? "nr" : "r", score });
+    }
+  }
+  out.sort((a, b) => b.score - a.score);
+  return out;
+}
+
+function bind(ch){
+  if (ch.c.__rk) return;
+  ch.c.__rk = 1;
+  if (!(ch.c.properties.notify || ch.c.properties.indicate)) return;
+  ch.c.startNotifications().catch(() => {});
+  ch.c.addEventListener("characteristicvaluechanged", e => {
+    S.notes++;
+    if (!S.live) S.live = ch;
+    const v = e.target.value;
+    if (!v || !v.byteLength || S.notes > 6) return;
+    const b = new Uint8Array(v.buffer, v.byteOffset || 0, v.byteLength);
+    const hex = [...b.slice(0, 12)].map(x => x.toString(16).padStart(2, "0")).join(" ");
+    log("Antwort: " + hex, "h");
+  });
+}
+
+function onDrop(){
+  log("Verbindung getrennt.", "e");
+  stat("Getrennt – VERBINDEN erneut.", "warn");
+  stopKeep();
+  S.chans = []; S.live = null; S.settle = 0; paint();
+}
+
+async function connect(){
+  if (S.picking) return;
+  if (!navigator.bluetooth) throw new Error("Web Bluetooth fehlt – Bluefy nötig");
+  S.picking = true;
+  let dev;
+  try {
+    stat("Roller in der Liste wählen …", "warn");
+    dev = await navigator.bluetooth.requestDevice({ acceptAllDevices:true });
+  } catch(e){ S.picking = false; throw new Error(btErr(e)) }
+  S.picking = false;
+
+  dev.addEventListener("gattserverdisconnected", onDrop);
+  S.dev = dev; S.chans = []; S.live = null; S.settle = 0; paint();
+
+  stat("Verbinde … Kopplungscode ggf. eingeben", "warn");
+  const srv = await openLink(dev);
+  if (!srv){ S.dev = null; paint(); throw new Error("Kopplung kam nicht zustande – Code vom Display") }
+
+  S.chans = await collect(srv);
+  if (!S.chans.length){ await sleep(900); S.chans = await collect(srv) }
+  if (!S.chans.length){ S.dev = null; paint(); throw new Error("keine schreibbaren Kanäle") }
+
+  S.chans.forEach(bind);
+  S.deadCh = {}; S.live = null;
+  S.settle = Date.now() + 2000;
+  paint();
+  stat("Verbunden · " + S.chans.length + " Kanäle", "ok");
+
+  /* Aufwecken: zweimal, mit Pause dazwischen. */
+  for (let i = 0; i < 2; i++){
+    await sleep(1500);
+    try { await strike("un", ["WS", "ON", "K1", "WAKE"], 1, 1) } catch(_){}
+  }
+  if (S.ride.laeuft) startKeep();
+}
+
+async function ensureLink(){
+  if (S.dev && S.dev.gatt && S.dev.gatt.connected && S.chans.length) return true;
+  if (!S.dev) return false;
+  log("Link war weg – neuer Aufbau.", "y");
+  const srv = await openLink(S.dev);
+  if (!srv) return false;
+  S.chans = await collect(srv);
+  S.chans.forEach(bind);
+  S.deadCh = {}; S.live = null;
+  paint();
+  return S.chans.length > 0;
+}
+
+async function writeTo(ch, data){
+  try {
+    if (ch.kind === "nr") await ch.c.writeValueWithoutResponse(data);
+    else await ch.c.writeValue(data);
+    return true;
+  } catch(_){
+    try {
+      if (ch.kind === "nr") await ch.c.writeValue(data);
+      else await ch.c.writeValueWithoutResponse(data);
+      return true;
+    } catch(_){
+      if (S.dev && S.dev.gatt && S.dev.gatt.connected)
+        S.deadCh[ch.c.uuid] = (S.deadCh[ch.c.uuid] || 0) + 1;
+      return false;
+    }
+  }
+}
+
+async function push(frame, warten){
+  const pool = S.chans.filter(ch => (S.deadCh[ch.c.uuid] || 0) < 4);
+  const use = S.live && (S.deadCh[S.live.c.uuid] || 0) < 4 ? [S.live] : (pool.length ? pool.slice(0, 4) : S.chans);
+  const vorher = S.notes;
+  let ok = false;
+  for (const ch of use){
+    if (await writeTo(ch, frame)) ok = true;
+    if (S.settle && Date.now() < S.settle) await sleep(120);
+    for (let i = 0; i < warten; i += 20){
+      await sleep(20);
+      if (S.notes > vorher) break;
+    }
+    if (S.notes > vorher) break;
+  }
+  return ok;
+}
+
+function merke(wort, f){
+  if (!S.live) return;
+  S.learn = { wort, f, uuid:S.live.c.uuid };
+  save("learn_" + S.brand, S.learn);
+  log("Kombination gemerkt.", "g");
+}
+
+async function strike(kind, woerter, runden, stufe){
+  if (!S.dev) throw new Error("nicht verbunden");
+  if (!await ensureLink()) throw new Error("Verbindung weg");
+  S.notes = 0;
+  const rahmen = stufe >= 2 ? RAHMEN.length : 2;
+
+  for (let r = 0; r < runden; r++){
+    if (!S.dev || (!S.dev.gatt.connected && !await ensureLink())) throw new Error("Verbindung weg");
+
+    for (const wort of woerter){
+      for (let f = 0; f < rahmen; f++){
+        const vor = S.notes;
+        await push(RAHMEN[f](wort), 90);
+        await sleep(25);
+        if (S.notes > vor){ merke(wort, f); break }
+      }
+      if (S.notes > 0) break;
+    }
+
+    if (stufe >= 3 && S.notes === 0){
+      log("Binäre Rahmen …", "y");
+      for (const fr of binFrames(kind)){
+        const vor = S.notes;
+        await push(fr, 110);
+        await sleep(25);
+        if (S.notes > vor){ merke("BIN", 0); break }
+      }
+    }
+
+    log("Runde " + (r + 1) + " · " + S.notes + " Antworten", S.notes ? "g" : "y");
+    if (S.notes > 0 && S.live) break;
+    await sleep(180);
+  }
+  return S.notes;
+}
+
+/* Gelernte Kombination direkt probieren. */
+async function strikeOne(k){
+  if (!S.dev) throw new Error("nicht verbunden");
+  if (!await ensureLink()) throw new Error("Verbindung weg");
+  const ch = S.chans.find(c => c.c.uuid === k.uuid) || S.live || S.chans[0];
+  if (!ch) return 0;
+  S.notes = 0;
+  await writeTo(ch, RAHMEN[k.f || 0](k.wort || "ON"));
+  for (let i = 0; i < 900; i += 30){
+    await sleep(30);
+    if (S.notes > 0) break;
+  }
+  if (S.notes > 0) S.live = ch;
+  return S.notes;
+}
+
+async function unlock(){
+  if (Date.now() - S.lastUn < COOL_UN){
+    stat("Kurz warten – gerade erst gesendet.", "warn");
+    return 0;
+  }
+  S.lastUn = Date.now();
+
+  let n = 0;
+  if (S.learn && S.learn.wort){
+    stat("Gelernte Kombination …", "warn");
+    try { n = await strikeOne(S.learn) } catch(_){ n = 0 }
+    if (n) log("Gelerntes Vorgehen hat gewirkt.", "g");
+  }
+  if (!n){
+    stat("Entsperren … Stufe 1", "warn");
+    n = await strike("un", CMDS[S.brand].un.slice(0, 4), 1, 1);
+  }
+  if (!n){
+    stat("Kein Echo – volle Palette.", "warn");
+    n = await strike("un", CMDS[S.brand].un, 2, 3);
+  } else {
+    stat("Echo da – wird wiederholt.", "warn");
+    n += await strike("un", CMDS[S.brand].un.slice(0, 6), 2, 2);
+  }
+
+  if (n && S.acct){ S.acct.used = true; saveAcc() }
+  if (n) rideStart();
+  stat(n ? "Antwort erhalten – Roller sollte laufen." : "Kein Echo – Roller aufwecken, neu verbinden.", n ? "ok" : "warn");
+  return n;
+}
+
+async function dump(){
+  if (!S.dev || !S.dev.gatt || !S.dev.gatt.connected) throw new Error("nicht verbunden");
+  const srv = await S.dev.gatt.connect();
+  const svcs = await srv.getPrimaryServices();
+  log("=== DIAGNOSE ===", "h");
+  for (const s of svcs){
+    let chs = [];
+    try { chs = await s.getCharacteristics() } catch(_){}
+    log("Dienst " + s.uuid, "g");
+    for (const c of chs){
+      const p = Object.keys(c.properties).filter(k => c.properties[k]).join(",");
+      log("  " + c.uuid + " [" + p + "]");
+    }
+  }
+  log("=== ENDE ===", "h");
+  stat("Diagnose geschrieben.", "ok");
+}
+
+/* ═══════ QR ═══════ */
+let jsqrP = null;
+function loadJsQR(){
+  if (window.jsQR) return Promise.resolve();
+  if (jsqrP) return jsqrP;
+  jsqrP = new Promise((res, rej) => {
+    const s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js";
+    s.onload = res;
+    s.onerror = () => { jsqrP = null; rej(new Error("Scanner nicht ladbar")) };
+    document.head.appendChild(s);
+  });
+  return jsqrP;
+}
+
+function stopCam(){
+  cancelAnimationFrame(S.raf);
+  if (S.cam){ S.cam.getTracks().forEach(t => t.stop()); S.cam = null }
+  S.torch = false;
+  $("cam").style.display = "none";
+  paint();
+}
+
+async function setTorch(on){
+  if (!S.cam){ stat("Erst QR SCANNEN.", "warn"); return }
+  const t = S.cam.getVideoTracks()[0];
+  let hat = false;
+  try { hat = !!(t && t.getCapabilities && t.getCapabilities().torch) } catch(_){}
+  if (!hat){ stat("Kein Blitzlicht.", "warn"); return }
+  try {
+    await t.applyConstraints({ advanced:[{ torch:on }] });
+    S.torch = on; paint();
+  } catch(e){ stat("Licht: " + err(e), "warn") }
+}
+
+async function scan(){
+  stopCam();
+  await loadJsQR();
+  const v = $("cam");
+  v.style.display = "block";
+  S.cam = await navigator.mediaDevices.getUserMedia({
+    video:{ facingMode:{ ideal:"environment" }, width:{ ideal:1280 }, height:{ ideal:720 } }
+  });
+  v.srcObject = S.cam;
+  await v.play();
+
+  const cv = document.createElement("canvas");
+  const ctx = cv.getContext("2d", { willReadFrequently:true });
+  stat("QR im Bild suchen …", "warn");
+
+  const tick = () => {
+    if (!S.cam) return;
+    if (v.readyState === v.HAVE_ENOUGH_DATA){
+      cv.width = v.videoWidth; cv.height = v.videoHeight;
+      ctx.drawImage(v, 0, 0);
+      const img = ctx.getImageData(0, 0, cv.width, cv.height);
+      const code = window.jsQR(img.data, img.width, img.height, { inversionAttempts:"attemptBoth" });
+      if (code && code.data){ stopCam(); onQr(code.data); return }
+    }
+    S.raf = requestAnimationFrame(tick);
+  };
+  S.raf = requestAnimationFrame(tick);
+}
+
+function onQr(text){
+  let code = "";
+  const m1 = text.match(/[?&](?:bike|vehicle|scooter|code|id)=([A-Za-z0-9]{4,12})/);
+  if (m1) code = m1[1];
+  else { const m2 = text.match(/([A-Za-z0-9]{4,10})\/?[#]?$/); if (m2) code = m2[1] }
+  if (!code) code = text.slice(-12);
+
+  log("QR: " + text, "g");
+  $("qrbox").textContent = "Code: " + code;
+  S.qr = code;
+  stat("QR gelesen · " + code + " – jetzt VERBINDEN", "ok");
+}
+
+document.addEventListener("visibilitychange", () => { if (document.hidden) stopCam() });
+window.addEventListener("pagehide", stopCam);
+
+/* ═══════ VERDRAHTUNG ═══════ */
+document.querySelectorAll(".brands button").forEach(b => {
+  b.onclick = () => {
+    S.brand = b.dataset.b;
+    save("brand", S.brand);
+    S.live = null;
+    S.learn = load("learn_" + S.brand, {}) || {};
+    sync();
+    $("iPk").value = S.pks[S.brand] || "";
+    $("iPhone").value = load("phone_" + S.brand, "");
+    $("iOtp").value = "";
+    S.pend = null;
+    cstat("");
+    paint();
+    stat(V[S.brand].label + " gewählt.", "");
+  };
+});
+
+$("bNew").onclick = guard(async () => {
+  if (V[S.brand].auth === "phone") await sendOtp();
+  else await provision(true);
+});
+$("bBal").onclick = guard(async () => { stat("Stand wird geprüft …", "warn"); await checkBal(false) });
+$("bCode").onclick = guard(async () => {
+  if (!S.acct) throw new Error("kein Konto");
+  const n = await redeemAll();
+  log(n + " Codes eingelöst.", n ? "g" : "y");
+  await checkBal(false);
+});
+
+$("bHunt").onclick = guard(hunt, 240000);
+$("bTest").onclick = guard(testCard, 60000);
+$("bNew2").onclick = guard(async () => {
+  setzeCard(newCard(), null);
+  saveAcc();
+  cstat("Neue Fake-Karte erzeugt.", "");
+  stat("Neue Fake-Karte.", "ok");
+});
+$("bCopyNum").onclick = async () => {
+  if (!S.card){ stat("Keine Karte.", "warn"); return }
+  try { await navigator.clipboard.writeText(S.card.num); stat("Kopiert.", "ok") }
+  catch(_){ stat("Kopieren nicht möglich.", "warn") }
+};
+$("bUse").onclick = guard(async () => {
+  if (!S.acct) throw new Error("kein Konto");
+  cstat("Karte wird hinterlegt …", "");
+  await attachCard(false);
+}, 90000);
+$("bDel").onclick = guard(deleteCard);
+$("bTake").onclick = guard(async () => {
+  const ok = await takeManual();
+  if (ok) $("manual").open = false;
+}, 90000);
+
+$("bRideStop").onclick = guard(async () => { rideStop(); stat("Fahrt beendet.", "ok") });
+$("bRideReset").onclick = guard(async () => { rideReset(); stat("Zähler genullt.", "ok") });
+
+$("bDrop").onclick = guard(async () => {
+  const br = S.brand;
+  const a = S.acct;
+  S.gen++;
+  S.prov = false;
+  if (a){
+    stat("Konto wird gelöscht …", "warn");
+    const weg = await killAccount(a);
+    log(weg ? "Beim Anbieter gelöscht." : "Nur lokal entfernt.", weg ? "g" : "y");
+  }
+  S.konten[br] = null;
+  if (br === S.brand) sync();
+  S.renewAt = 0;
+  saveAcc(); paint(); cstat("");
+  stat("Konto entfernt.", "ok");
+});
+$("bOtp").onclick = guard(sendOtp, 45000);
+$("bOtp2").onclick = guard(verifyOtp, 60000);
+
+$("bOwn").onclick = guard(async () => {
+  const addr = $("iOwn").value.trim();
+  if (!/^[^@\s]+@[^@\s]+\.[a-z]{2,}$/i.test(addr)) throw new Error("gültige Adresse eingeben");
+  S.mail = addr; save("mail", addr);
+  stat("Mail wird angefordert …", "warn");
+  const r = await limeMagic(addr);
+  if (r.token){ await adopt({ b:"lime", e:addr, t:r.token, bal:0, used:false }); return }
+  log("Mail an " + addr + " unterwegs.", "y");
+  stat("Mail unterwegs – Link einfügen.", "warn");
+});
+
+$("bWeb").onclick = () => {
+  window.open("https://web-production.lime.bike/", "_blank");
+  stat("Adresse eintragen, Link danach hier einfügen.", "warn");
+};
+
+$("bLink").onclick = guard(async () => {
+  const raw = $("iLink").value.trim();
+  if (!raw) throw new Error("Link einfügen");
+  const roh = grabToken(raw);
+  if (!roh) throw new Error("kein Token erkennbar");
+  const frisch = await limeLogin(roh);
+  await adopt({ b:"lime", e:$("iOwn").value.trim() || S.mail || "konto", t:frisch, bal:0, used:false });
+  $("iLink").value = "";
+});
+
+$("bConn").onclick = guard(connect, 75000);
+$("bUnlock").onclick = guard(unlock, 150000);
+$("bLock").onclick = guard(async () => {
+  stat("Sperren …", "warn");
+  const n = await strike("lk", CMDS[S.brand].lk, 2, 3);
+  if (n) rideStop();
+  stat(n ? "Sperrbefehl gesendet." : "Kein Echo beim Sperren.", n ? "ok" : "warn");
+}, 90000);
+$("bDiag").onclick = guard(dump, 45000);
+
+$("bScan").onclick = guard(async () => {
+  try { await scan() }
+  catch(e){ stopCam(); throw new Error("Kamera: " + err(e)) }
+}, 45000);
+$("bTorch").onclick = guard(() => setTorch(!S.torch), 20000);
+$("bQrCopy").onclick = async () => {
+  if (!S.qr){ stat("Noch kein Code.", "warn"); return }
+  try { await navigator.clipboard.writeText(S.qr); stat("Code kopiert.", "ok") }
+  catch(_){ stat("Kopieren nicht möglich.", "warn") }
+};
+
+$("bCopy").onclick = async () => {
+  try { await navigator.clipboard.writeText($("log").innerText); stat("Kopiert.", "ok") }
+  catch(_){ stat("Kopieren nicht möglich.", "warn") }
+};
+$("bClear").onclick = () => { $("log").innerHTML = "" };
+
+$("bRelay").onclick = guard(async () => {
+  stat("Teste …", "warn");
+  const u = "https://api.mail.tm/domains";
+  for (const f of PX_GET){
+    const t0 = Date.now();
+    try {
+      const r = await fetch(f(u), { cache:"no-store" });
+      log(r.status + " · " + (Date.now() - t0) + " ms", r.ok ? "g" : "y");
+    } catch(e){ log(err(e), "e") }
+  }
+  stat("Test beendet.", "ok");
+}, 90000);
+
+$("bReset").onclick = guard(async () => {
+  stopCam();
+  stopKeep();
+  try { Object.keys(localStorage).filter(k => k.startsWith("rk_")).forEach(k => localStorage.removeItem(k)) } catch(_){}
+  S.gen++;
+  S.konten = { lime:null, voi:null, bolt:null };
+  S.pks = { lime:"", voi:"", bolt:"" };
+  S.learn = {};
+  S.acct = null; S.card = null; S.bin = ""; S.brand = "lime"; S.pend = null;
+  S.deadCh = {}; S.renewAt = 0; S.prov = false; S.qr = ""; S.notes = 0;
+  S.chans = []; S.live = null; S.dev = null; S.settle = 0; S.lastUn = 0;
+  S.mail = ""; S.gid = null;
+  rideReset();
+  ["iPk", "iBin", "iPhone", "iOtp", "iNum", "iExp", "iCvc", "iName", "iOwn", "iLink"]
+    .forEach(id => { $(id).value = "" });
+  $("log").innerHTML = ""; $("qrbox").textContent = ""; cstat(""); paint();
+  stat("Alles zurückgesetzt.", "ok");
+});
+
+$("bPk").onclick = () => {
+  const v = $("iPk").value.trim();
+  if (!/^pk_(live|test)_/.test(v)){ stat("Sieht nicht wie ein pk_… aus.", "warn"); return }
+  S.pks[S.brand] = v; save("pk_" + S.brand, v); stat("Schlüssel gespeichert.", "ok");
+};
+
+$("bBin").onclick = () => {
+  const v = $("iBin").value.replace(/\D/g, "");
+  if (v.length !== 6){ stat("BIN braucht 6 Ziffern.", "warn"); return }
+  if (v[0] !== "4" && v[0] !== "5"){ stat("BIN muss mit 4 oder 5 beginnen.", "warn"); return }
+  S.bin = v; save("bin", v);
+  if (S.acct){ setzeCard(newCard(), null); saveAcc() }
+  cstat("BIN " + v + " gesetzt.", "");
+  stat("BIN gesetzt.", "ok");
+};
+
+$("iNum").addEventListener("input", e => {
+  const v = e.target.value.replace(/\D/g, "").slice(0, 19);
+  e.target.value = v.replace(/(.{4})/g, "$1 ").trim();
+});
+$("iExp").addEventListener("input", e => {
+  let v = e.target.value.replace(/\D/g, "").slice(0, 4);
+  if (v.length > 2) v = v.slice(0, 2) + "/" + v.slice(2);
+  e.target.value = v;
+});
+
+/* ═══════ START ═══════ */
+function boot(){
+  const alt = load("konten", {});
+  for (const b of MARKS){
+    S.konten[b] = (alt && alt[b]) || null;
+    S.pks[b] = load("pk_" + b, "");
+  }
+
+  S.brand = load("brand", "lime");
+  if (!V[S.brand]) S.brand = "lime";
+  S.learn = load("learn_" + S.brand, {}) || {};
+  S.bin = load("bin", "");
+  S.mail = load("mail", "");
+  S.gid = load("gid", "") || null;
+  sync();
+
+  const r = load("ride", null);
+  if (r && r.t0){
+    S.ride.base = Math.min(LIMIT, r.base || 0);
+    S.ride.t0 = r.t0;
+    S.ride.laeuft = true;
+    rideTimer();
+  } else if (r && r.base){
+    S.ride.base = Math.min(LIMIT, r.base);
+  }
+
+  $("iPk").value = S.pks[S.brand] || "";
+  $("iBin").value = S.bin || "";
+  $("iOwn").value = S.mail || "";
+  $("iPhone").value = load("phone_" + S.brand, "");
+  paint();
+  log("RollerKey bereit.", "g");
+
+  if (S.acct && S.acct.t){
+    log("Konto geladen: " + (S.acct.e || S.acct.ph), "g");
+    stat("Bereit", "ok");
+    if (S.acct.used && (S.acct.bal || 0) <= LOW && V[S.acct.b].auth === "email"){
+      S.renewAt = 0;
+      provision(true).catch(() => {});
+    } else {
+      checkBal(true).catch(() => {});
+    }
+    return;
+  }
+
+  if (V[S.brand].auth === "email"){
+    stat("Konto wird angelegt …", "warn");
+    provision(false).catch(e => {
+      log("Anlegen: " + err(e), "e");
+      stat("Kein Postfach – NEUES KONTO oder eigene Mail.", "err");
+    });
+  } else {
+    stat("Nummer eintragen und CODE SENDEN.", "");
+  }
+}
+
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(() => {});
+
+boot();
+</script>
+</body>
+</html>
